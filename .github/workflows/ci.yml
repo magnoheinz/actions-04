@@ -1,14 +1,34 @@
-name: Boas-vindas
+name: Variáveis e contextos
 
 on:
   workflow_dispatch:
+    inputs:
+      receita:
+        description: Receita do dia
+        required: true
+        type: string
+        default: Bolo de Chocolate
 
 permissions:
   contents: read
 
+env:
+  COZINHA: Cozinha do Curso
+
 jobs:
-  boas-vindas:
+  apresentar:
     runs-on: ubuntu-latest
     steps:
-      - name: Cumprimentar a turma
-        run: echo "Olá, GitHub Actions!"
+      - name: Mostrar contexto
+        env:
+          RECEITA: ${{ inputs.receita }}
+          AUTOR: ${{ github.actor }}
+          TURMA: ${{ vars.TURMA }}
+        run: |
+          printf 'Cozinha: %s\nReceita do dia: %s\nPedido por: %s\nTurma: %s\n' "$COZINHA" "$RECEITA" "$AUTOR" "$TURMA"
+      - name: Verificar segredo sem exibir o valor
+        env:
+          TOKEN_DEMO: ${{ secrets.CURSO_TOKEN }}
+        run: |
+          test -n "$TOKEN_DEMO" || { echo "Cadastre CURSO_TOKEN em Settings > Secrets and variables > Actions"; exit 1; }
+          echo "Segredo disponível para esta etapa."
